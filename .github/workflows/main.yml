@@ -55,7 +55,7 @@ jobs:
             sudo yum install docker -y
             sudo service docker start
             sudo usermod -aG docker ec2-user
-            
+             
             # 2. Autenticar en ECR (usando sudo)
             aws ecr get-login-password --region us-east-1 | sudo docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
             
