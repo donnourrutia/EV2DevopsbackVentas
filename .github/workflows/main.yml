@@ -43,26 +43,28 @@ jobs:
       - name: Ejecutar despliegue automático vía Bastion/Frontend
         uses: appleboy/ssh-action@master
         with:
-         
           host: ${{ secrets.BACKEND_PRIVATE_IP }} 
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.AWS_PRIVATE_KEY }}
-          
-         
           proxy_host: ${{ secrets.FRONTEND_PUBLIC_IP }} 
           proxy_username: ${{ secrets.EC2_USER }}
           proxy_key: ${{ secrets.AWS_PRIVATE_KEY }}
-          
           script: |
-            # Autenticar en ECR
-            aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
+            # 1. Instalar e iniciar Docker (vital si la máquina es nueva)
+            sudo yum update -y
+            sudo yum install docker -y
+            sudo service docker start
+            sudo usermod -aG docker ec2-user
             
-            # Limpiar contenedor anterior
-            docker stop app-backend || true
-            docker rm app-backend || true
+            # 2. Autenticar en ECR (usando sudo)
+            aws ecr get-login-password --region us-east-1 | sudo docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
             
-            # Descargar nueva imagen
-            docker pull ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/backendventasinnovatech:latest
+            # 3. Limpiar contenedor anterior
+            sudo docker stop app-backend || true
+            sudo docker rm app-backend || true
             
-            # Levantar el contenedor del backend (Ajustado al puerto 8080 de Spring Boot)
-            docker run -d --name app-backend -p 8080:8080 ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/backendventasinnovatech:latest
+            # 4. Descargar nueva imagen
+            sudo docker pull ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/backendventasinnovatech:latest
+            
+            # 5. Levantar el contenedor del backend
+            sudo docker run -d --name app-backend -p 8080:8080 ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/backendventasinnovatech:latest
