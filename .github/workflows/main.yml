@@ -49,6 +49,7 @@ jobs:
           proxy_host: ${{ secrets.FRONTEND_PUBLIC_IP }} 
           proxy_username: ${{ secrets.EC2_USER }}
           proxy_key: ${{ secrets.AWS_PRIVATE_KEY }}
+          command_timeout: 20m
           script: |
             # 1. Instalar Docker y Docker Compose
             sudo yum update -y
