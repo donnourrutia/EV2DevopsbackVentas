@@ -112,7 +112,9 @@ jobs:
               db_data:
             EOF
             
-            # 4. Apagar entorno anterior, descargar nueva imagen y levantar todo
+            # 4. Apagar entorno anterior, limpiar basuras y levantar todo
             sudo docker-compose down || true
+            sudo docker rm -f app-backend || true
+            sudo docker rm -f db-ventas || true
             sudo docker-compose pull backend
             sudo docker-compose up -d
