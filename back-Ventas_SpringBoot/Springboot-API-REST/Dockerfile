@@ -22,7 +22,7 @@ WORKDIR /app
 # 5. Copiamos el .jar compilado desde la etapa anterior
 # (Buscamos cualquier jar en /target y lo renombramos a app.jar)
 COPY --from=builder /app/target/*.jar app.jar
- 
+  
 # 6. El puerto por defecto donde escucha Spring Boot
 EXPOSE 8080
    
