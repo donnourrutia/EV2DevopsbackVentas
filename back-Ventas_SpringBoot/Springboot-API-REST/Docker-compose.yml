@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # --- 1. Servicio de Base de Datos (MySQL) ---
+  db:
+    image: mysql:8.0
+    container_name: db-ventas
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: admin123        
+      MYSQL_DATABASE: db_ventas                
+      MYSQL_USER: user_ventas
+      MYSQL_PASSWORD: password_ventas
+    ports:
+      - "3306:3306"
+    networks:
+      - backend_network
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 20s
+      retries: 10
+
+    build: 
+      context: ./back-Ventas_SpringBoot/Springboot-API-REST
+      dockerfile: Dockerfile
+    container_name: app-backend
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/db_ventas?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=user_ventas
+      - SPRING_DATASOURCE_PASSWORD=password_ventas
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    networks:
+      - backend_network
+    depends_on:
+      db:
+        condition: service_healthy
+
+networks:
+  backend_network:
+    driver: bridge
+
+volumes:
+  db_data:
