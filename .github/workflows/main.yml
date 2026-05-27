@@ -24,7 +24,7 @@ jobs:
       - name: Iniciar sesión en Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
-
+ 
       - name: Build, tag, y push de la imagen Docker a ECR
         working-directory: ./back-Ventas_SpringBoot/Springboot-API-REST
         env:
