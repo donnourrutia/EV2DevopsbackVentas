@@ -22,7 +22,7 @@ services:
       interval: 10s
       timeout: 20s
       retries: 10
-
+ 
     build: 
       context: ./back-Ventas_SpringBoot/Springboot-API-REST
       dockerfile: Dockerfile
