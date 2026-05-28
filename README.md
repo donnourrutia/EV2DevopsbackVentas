@@ -1,4 +1,4 @@
-# Microservicio Backend - Ventas | ITPCARGO 🛒
+# Microservicio Backend - Ventas EV2 Innovatech 🛒
 
 Este repositorio contiene el microservicio de **Ventas** para el ecosistema de ITPCARGO. Está encargado de la gestión, registro y consulta de las órdenes de compra generadas en el sistema.
 
