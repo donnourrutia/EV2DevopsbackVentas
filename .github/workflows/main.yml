@@ -1,56 +1,4 @@
-name: CI/CD Pipeline Backend a AWS EC2 via ECR
-
-on:
-  push:
-    branches:
-      - deploy
-
-jobs:
-  build-and-push:
-    name: Build y Push de la Imagen a ECR
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout del repositorio
-        uses: actions/checkout@v3
-
-      - name: Configurar Credenciales de AWS
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
-          aws-region: us-east-1 
-
-      - name: Iniciar sesión en Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
- 
-      - name: Build, tag, y push de la imagen Docker a ECR
-        working-directory: ./back-Ventas_SpringBoot/Springboot-API-REST
-        env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: backendventasinnovatech 
-          IMAGE_TAG: latest
-        run: |
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-
-  deploy-to-ec2:
-    name: Despliegue en EC2 (Backend Privado con Compose)
-    needs: build-and-push
-    runs-on: ubuntu-latest
-    steps:
-      - name: Ejecutar despliegue automático vía Bastion/Frontend
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.BACKEND_PRIVATE_IP }} 
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.AWS_PRIVATE_KEY }}
-          proxy_host: ${{ secrets.FRONTEND_PUBLIC_IP }} 
-          proxy_username: ${{ secrets.EC2_USER }}
-          proxy_key: ${{ secrets.AWS_PRIVATE_KEY }}
-          command_timeout: 20m
-          script: |
+script: |
             # 1. Instalar Docker y Docker Compose
             sudo yum update -y
             sudo yum install docker -y
@@ -83,7 +31,7 @@ jobs:
                 volumes:
                   - db_data:/var/lib/mysql
                 healthcheck:
-                  test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+                  test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-padmin123"]
                   interval: 10s
                   timeout: 20s
                   retries: 10
@@ -98,7 +46,7 @@ jobs:
                   - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/db_ventas?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
                   - SPRING_DATASOURCE_USERNAME=user_ventas
                   - SPRING_DATASOURCE_PASSWORD=password_ventas
-                  - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+                  - SPRING_JPA_HIBERNATE_DDL_AUTO=create
                 networks:
                   - backend_network
                 depends_on:
