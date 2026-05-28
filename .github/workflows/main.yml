@@ -52,8 +52,6 @@ jobs:
           command_timeout: 20m
           script: |
             # 1. Instalar Docker y Docker Compose
-            sudo yum update -y
-            sudo yum install docker -y
             sudo service docker start
             sudo usermod -aG docker ec2-user
             sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
